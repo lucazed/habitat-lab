@@ -1321,13 +1321,18 @@ class NavigationTask(EmbodiedTask):
         # Get the rigid object manager
 
         data_path = "/content/habitat-sim/data"
+        print("data_path: ", data_path)
         self.rigid_obj_mgr = self._sim.get_rigid_object_manager()
+        print("rigid_obj_mgr: ", self.rigid_obj_mgr)
         # Load some object templates from configuration files
         obj_templates_mgr = self._sim.get_object_template_manager()
+        print("obj_templates_mgr: ", obj_templates_mgr)
         self.sphere_template_id = obj_templates_mgr.load_configs(
             str(os.path.join(data_path, "test_assets/objects/sphere"))
         )[0]
+        print("sphere_template_id: ", self.sphere_template_id)
         self.sphere_obj = None
+        print("sphere_obj: ", self.sphere_obj)
 
     def overwrite_sim_config(self, sim_config: Any, episode: Episode) -> Any:
         sim_config.scene = episode.scene_id
@@ -1335,22 +1340,31 @@ class NavigationTask(EmbodiedTask):
             episode.start_position is not None
             and episode.start_rotation is not None
         ):
+            print("episode.start_position: ", episode.start_position)
             agent_config = get_agent_config(sim_config)
+            print("agent_config: ", agent_config)
             agent_config.start_position = episode.start_position
+            print("agent_config.start_position: ", agent_config.start_position)
             agent_config.start_rotation = [
                 float(k) for k in episode.start_rotation
             ]
+            print("agent_config.start_rotation: ", agent_config.start_rotation)
             agent_config.is_set_start_state = True
+            print("agent_config.is_set_start_state: ", agent_config.is_set_start_state)
 
         # Remove the old sphere if it exists
         if self.sphere_obj is not None:
-            self.rigid_obj_mgr.remove_object_by_id(self.sphere_obj.object_id)
+            print("self.sphere_obj: ", self.sphere_obj)
+            self.rigid_obj_mgr.remove_object_by_id(self.sphere_obj.object_id, delete_object_node=False)
+            print("self.rigid_obj_mgr: ", self.rigid_obj_mgr)
 
         # Add a new sphere at the goal location
         self.sphere_obj = self.rigid_obj_mgr.add_object_by_template_id(
             self.sphere_template_id
         )
+        print("self.sphere_obj: ", self.sphere_obj)
         self.sphere_obj.translation = episode.goals[0].position
+        print("self.sphere_obj.translation: ", self.sphere_obj.translation)
 
         return sim_config
 
